@@ -157,7 +157,8 @@ export const getVisualizationResponse = (query) => {
     };
   }
   
-  if (query.includes('media') || query.includes('gallery') || query.includes('images')) {
+  if (query.includes('media') || query.includes('gallery') || query.includes('images') || 
+      query.includes('company event') || query.includes('recent event') || query.includes('show me recent company event')) {
     return {
       message: "Here are some highlights from our recent company events:",
       visualization: mockVisualizations.media_gallery
