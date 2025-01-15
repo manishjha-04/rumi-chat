@@ -96,7 +96,7 @@ export const mockVisualizations = {
 
   "rich_content": {
     type: 'text',
-    data: `# Q2 2024 Quarterly Report
+    data: ` Q2 2024 Quarterly Report
 
 ## Executive Summary
 Our Q2 performance demonstrates strong growth across all key metrics.
