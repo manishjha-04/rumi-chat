@@ -11,10 +11,11 @@ const ImageCard = memo(({ image, index, onClick, onDownload, downloading }) => (
     animate={{ opacity: 1, scale: 1 }}
     transition={{ 
       delay: Math.min(index * 0.1, 0.3),
-      duration: 0.2
+      duration: 0.3,
+      ease: "easeOut"
     }}
     whileHover={{ 
-      scale: 1.03,
+      scale: 1.05,
       transition: { duration: 0.2 }
     }}
     style={{ cursor: 'pointer' }}
@@ -24,7 +25,8 @@ const ImageCard = memo(({ image, index, onClick, onDownload, downloading }) => (
       borderRadius: 2,
       overflow: 'hidden',
       aspectRatio: '16/9',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+      boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+      background: '#f8f9fa',
       '&:hover .overlay': {
         opacity: 1
       }
@@ -35,7 +37,8 @@ const ImageCard = memo(({ image, index, onClick, onDownload, downloading }) => (
         style={{
           width: '100%',
           height: '100%',
-          objectFit: 'cover'
+          objectFit: 'cover',
+          transition: 'transform 0.3s ease'
         }}
         loading="lazy"
       />
@@ -47,9 +50,9 @@ const ImageCard = memo(({ image, index, onClick, onDownload, downloading }) => (
           left: 0,
           right: 0,
           bottom: 0,
-          bgcolor: 'rgba(0,0,0,0.5)',
+          bgcolor: 'rgba(0,0,0,0.6)',
           opacity: 0,
-          transition: 'opacity 0.2s',
+          transition: 'opacity 0.3s ease',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
@@ -63,7 +66,13 @@ const ImageCard = memo(({ image, index, onClick, onDownload, downloading }) => (
             disabled={downloading}
             sx={{ 
               color: 'white',
-              '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' }
+              bgcolor: 'rgba(255,255,255,0.1)',
+              backdropFilter: 'blur(4px)',
+              '&:hover': { 
+                bgcolor: 'rgba(255,255,255,0.2)',
+                transform: 'scale(1.1)'
+              },
+              transition: 'all 0.2s ease'
             }}
           >
             {downloading ? (
@@ -79,7 +88,13 @@ const ImageCard = memo(({ image, index, onClick, onDownload, downloading }) => (
             onClick={() => onClick(index)}
             sx={{ 
               color: 'white',
-              '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' }
+              bgcolor: 'rgba(255,255,255,0.1)',
+              backdropFilter: 'blur(4px)',
+              '&:hover': { 
+                bgcolor: 'rgba(255,255,255,0.2)',
+                transform: 'scale(1.1)'
+              },
+              transition: 'all 0.2s ease'
             }}
           >
             <ZoomIn />
@@ -90,7 +105,8 @@ const ImageCard = memo(({ image, index, onClick, onDownload, downloading }) => (
           sx={{ 
             color: 'white',
             textAlign: 'center',
-            fontWeight: 500
+            fontWeight: 500,
+            textShadow: '0 2px 4px rgba(0,0,0,0.2)'
           }}
         >
           {image.caption}
@@ -98,6 +114,35 @@ const ImageCard = memo(({ image, index, onClick, onDownload, downloading }) => (
       </Box>
     </Box>
   </motion.div>
+));
+
+// Pagination dots component
+const PaginationDots = memo(({ total, current, onDotClick }) => (
+  <Box sx={{ 
+    display: 'flex', 
+    gap: 1, 
+    justifyContent: 'center',
+    mt: 2 
+  }}>
+    {Array.from({ length: total }, (_, i) => (
+      <Box
+        key={i}
+        onClick={() => onDotClick(i)}
+        sx={{
+          width: 8,
+          height: 8,
+          borderRadius: '50%',
+          bgcolor: current === i ? 'primary.main' : 'rgba(0,0,0,0.2)',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+          '&:hover': {
+            transform: 'scale(1.2)',
+            bgcolor: current === i ? 'primary.main' : 'rgba(0,0,0,0.3)'
+          }
+        }}
+      />
+    ))}
+  </Box>
 ));
 
 const MediaDisplay = ({ images, title }) => {
@@ -175,47 +220,97 @@ const MediaDisplay = ({ images, title }) => {
       )}
       
       <Box sx={{ 
-        display: 'flex',
-        overflowX: 'auto',
-        gap: 2,
-        pb: 2,
-        scrollBehavior: 'smooth',
-        '&::-webkit-scrollbar': {
-          height: '8px',
-        },
-        '&::-webkit-scrollbar-track': {
-          background: '#f1f1f1',
-          borderRadius: '4px',
-        },
-        '&::-webkit-scrollbar-thumb': {
-          background: '#888',
-          borderRadius: '4px',
-          '&:hover': {
-            background: '#555',
-          },
-        },
+        position: 'relative',
+        '&:hover .carousel-nav': {
+          opacity: 1
+        }
       }}>
-        {images.map((image, index) => (
-          <Box
-            key={image.url}
-            sx={{
-              flex: '0 0 auto',
-              width: {
-                xs: '280px',
-                sm: '320px',
-                md: '360px'
-              }
-            }}
-          >
-            <ImageCard
-              image={image}
-              index={index}
-              onClick={handleImageClick}
-              onDownload={(e) => handleDownload(image, e)}
-              downloading={downloading}
-            />
-          </Box>
-        ))}
+        <Box sx={{ 
+          display: 'flex',
+          overflowX: 'auto',
+          gap: 2,
+          pb: 2,
+          scrollBehavior: 'smooth',
+          msOverflowStyle: 'none',
+          scrollbarWidth: 'none',
+          '&::-webkit-scrollbar': {
+            display: 'none'
+          }
+        }}>
+          {images.map((image, index) => (
+            <Box
+              key={image.url}
+              sx={{
+                flex: '0 0 auto',
+                width: {
+                  xs: '280px',
+                  sm: '320px',
+                  md: '360px'
+                }
+              }}
+            >
+              <ImageCard
+                image={image}
+                index={index}
+                onClick={handleImageClick}
+                onDownload={(e) => handleDownload(image, e)}
+                downloading={downloading}
+              />
+            </Box>
+          ))}
+        </Box>
+
+        {/* Navigation Arrows */}
+        <IconButton
+          className="carousel-nav"
+          sx={{ 
+            position: 'absolute',
+            left: 0,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            color: 'white',
+            bgcolor: 'rgba(0,0,0,0.5)',
+            backdropFilter: 'blur(4px)',
+            opacity: 0,
+            transition: 'all 0.2s ease',
+            '&:hover': { 
+              bgcolor: 'rgba(0,0,0,0.7)',
+              transform: 'translateY(-50%) scale(1.1)'
+            }
+          }}
+          onClick={handlePrevious}
+        >
+          <ChevronLeft />
+        </IconButton>
+        
+        <IconButton
+          className="carousel-nav"
+          sx={{ 
+            position: 'absolute',
+            right: 0,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            color: 'white',
+            bgcolor: 'rgba(0,0,0,0.5)',
+            backdropFilter: 'blur(4px)',
+            opacity: 0,
+            transition: 'all 0.2s ease',
+            '&:hover': { 
+              bgcolor: 'rgba(0,0,0,0.7)',
+              transform: 'translateY(-50%) scale(1.1)'
+            }
+          }}
+          onClick={handleNext}
+        >
+          <ChevronRight />
+        </IconButton>
+
+        {/* Pagination Dots */}
+        <PaginationDots 
+          total={images.length} 
+          current={currentIndex} 
+          onDotClick={setCurrentIndex}
+        />
       </Box>
 
       <Modal
@@ -232,6 +327,7 @@ const MediaDisplay = ({ images, title }) => {
             right: 0,
             bottom: 0,
             bgcolor: 'rgba(0,0,0,0.9)',
+            backdropFilter: 'blur(8px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -243,7 +339,13 @@ const MediaDisplay = ({ images, title }) => {
                 right: 16, 
                 top: 16,
                 color: 'white',
-                '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' }
+                bgcolor: 'rgba(255,255,255,0.1)',
+                backdropFilter: 'blur(4px)',
+                '&:hover': { 
+                  bgcolor: 'rgba(255,255,255,0.2)',
+                  transform: 'scale(1.1)'
+                },
+                transition: 'all 0.2s ease'
               }}
               onClick={handleClose}
             >
@@ -258,14 +360,22 @@ const MediaDisplay = ({ images, title }) => {
               flexDirection: 'column',
               alignItems: 'center'
             }}>
-              <img
+              <motion.img
+                key={images[currentIndex].url}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1.1 }}
+                transition={{ 
+                  duration: 0.4,
+                  ease: [0.4, 0, 0.2, 1]
+                }}
                 src={images[currentIndex].url}
                 alt={images[currentIndex].alt}
                 style={{
-                  maxWidth: '100%',
-                  maxHeight: 'calc(100vh - 150px)',
+                  maxWidth: '95vw',
+                  maxHeight: 'calc(100vh - 100px)',
                   objectFit: 'contain',
-                  borderRadius: '8px'
+                  borderRadius: '12px',
+                  boxShadow: '0 12px 48px rgba(0,0,0,0.4)'
                 }}
               />
 
@@ -281,7 +391,13 @@ const MediaDisplay = ({ images, title }) => {
                 <IconButton
                   sx={{ 
                     color: 'white',
-                    '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' }
+                    bgcolor: 'rgba(255,255,255,0.1)',
+                    backdropFilter: 'blur(4px)',
+                    '&:hover': { 
+                      bgcolor: 'rgba(255,255,255,0.2)',
+                      transform: 'scale(1.1)'
+                    },
+                    transition: 'all 0.2s ease'
                   }}
                   onClick={(e) => handleDownload(images[currentIndex], e)}
                   disabled={downloading}
@@ -313,7 +429,13 @@ const MediaDisplay = ({ images, title }) => {
                   top: '50%',
                   transform: 'translateY(-50%)',
                   color: 'white',
-                  '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' }
+                  bgcolor: 'rgba(255,255,255,0.1)',
+                  backdropFilter: 'blur(4px)',
+                  '&:hover': { 
+                    bgcolor: 'rgba(255,255,255,0.2)',
+                    transform: 'translateY(-50%) scale(1.1)'
+                  },
+                  transition: 'all 0.2s ease'
                 }}
                 onClick={handlePrevious}
               >
@@ -327,7 +449,13 @@ const MediaDisplay = ({ images, title }) => {
                   top: '50%',
                   transform: 'translateY(-50%)',
                   color: 'white',
-                  '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' }
+                  bgcolor: 'rgba(255,255,255,0.1)',
+                  backdropFilter: 'blur(4px)',
+                  '&:hover': { 
+                    bgcolor: 'rgba(255,255,255,0.2)',
+                    transform: 'translateY(-50%) scale(1.1)'
+                  },
+                  transition: 'all 0.2s ease'
                 }}
                 onClick={handleNext}
               >
@@ -341,18 +469,26 @@ const MediaDisplay = ({ images, title }) => {
                     color: 'white',
                     textAlign: 'center',
                     mt: 2,
-                    maxWidth: '600px'
+                    maxWidth: '600px',
+                    textShadow: '0 2px 4px rgba(0,0,0,0.2)'
                   }}
                 >
                   {images[currentIndex].caption}
                 </Typography>
               )}
+
+              {/* Modal Pagination Dots */}
+              <PaginationDots 
+                total={images.length} 
+                current={currentIndex} 
+                onDotClick={setCurrentIndex}
+              />
             </Box>
           </Box>
         </Fade>
       </Modal>
     </Box>
   );
-};
+}
 
 export default memo(MediaDisplay); 
