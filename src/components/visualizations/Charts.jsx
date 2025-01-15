@@ -37,12 +37,12 @@ export const LineChartComponent = ({ data, xKey, yKey, title }) => (
 );
 
 export const PieChartComponent = ({ data, dataKey, nameKey, title }) => (
-  <Box sx={{ width: '100%', height: 400 }}>
+  <Box sx={{ width: '100%', height: 500 }}>
     <Typography variant="h6" align="center" gutterBottom>
       {title}
     </Typography>
     <ResponsiveContainer>
-      <PieChart>
+      <PieChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
         <Pie
           data={data}
           dataKey={dataKey}
@@ -57,7 +57,7 @@ export const PieChartComponent = ({ data, dataKey, nameKey, title }) => (
           ))}
         </Pie>
         <Tooltip />
-        <Legend />
+        <Legend verticalAlign="bottom" height={36} />
       </PieChart>
     </ResponsiveContainer>
   </Box>
