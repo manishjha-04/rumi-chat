@@ -70,6 +70,52 @@ export const mockVisualizations = {
 - Reduced customer churn by 5%
 - Launched 3 new product lines
 - Expanded to 2 new markets`
+  },
+
+  "media_gallery": {
+    type: 'images',
+    data: [
+      { 
+        url: 'https://picsum.photos/400/300?random=1', 
+        alt: 'Product Launch Event',
+        caption: 'Our latest product launch event in New York'
+      },
+      { 
+        url: 'https://picsum.photos/400/300?random=2', 
+        alt: 'Team Meeting',
+        caption: 'Quarterly strategy meeting with global teams'
+      },
+      { 
+        url: 'https://picsum.photos/400/300?random=3', 
+        alt: 'Customer Workshop',
+        caption: 'Customer engagement workshop in London'
+      }
+    ],
+    title: 'Recent Company Events'
+  },
+
+  "rich_content": {
+    type: 'text',
+    data: `# Q2 2024 Quarterly Report
+
+## Executive Summary
+Our Q2 performance demonstrates strong growth across all key metrics.
+
+### Financial Highlights
+- Revenue: **$12.5M** _(↑15% YoY)_
+- Gross Margin: **68%** _(↑3% from Q1)_
+- Operating Expenses: **$8.2M** _(within budget)_
+
+### Key Achievements
+1. 🚀 Launched 3 new product features
+2. 💼 Secured 2 enterprise partnerships
+3. 🌟 Achieved 98% customer satisfaction
+
+> "Our focus on customer-centric innovation continues to drive sustainable growth."
+> *- CEO Statement*
+
+![Quarterly Highlights](https://picsum.photos/800/400?random=4)
+`
   }
 };
 
@@ -108,6 +154,20 @@ export const getVisualizationResponse = (query) => {
     return {
       message: "Here are our key performance metrics and highlights for the period:",
       visualization: mockVisualizations.key_metrics
+    };
+  }
+  
+  if (query.includes('media') || query.includes('gallery') || query.includes('images')) {
+    return {
+      message: "Here are some highlights from our recent company events:",
+      visualization: mockVisualizations.media_gallery
+    };
+  }
+
+  if (query.includes('report') || query.includes('quarterly') || query.includes('summary')) {
+    return {
+      message: "Here's the latest quarterly report with detailed insights:",
+      visualization: mockVisualizations.rich_content
     };
   }
   
