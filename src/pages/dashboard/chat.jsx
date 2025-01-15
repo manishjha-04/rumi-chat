@@ -33,6 +33,8 @@ import { BACKEND_CHAT_URL, ENV_CHAT_PROXY, ENV_PROXY } from "@/configs/globalVar
 import styles from './chat.module.css';
 import gfm from 'remark-gfm';
 import { MentionsInput, Mention } from 'react-mentions';
+import { getVisualizationResponse } from '@/data/mockVisualizations';
+import VisualizationRenderer from '@/components/visualizations/VisualizationRenderer';
 
 
 const JettIcon = ({ className }) => {
@@ -97,10 +99,24 @@ function ChatBox() {
     setLoading(true);
     setQuery('');
 
-    // Simulate bot response with delay
-    setTimeout(() => {
+    // Check for visualization response
+    const visualizationResponse = getVisualizationResponse(question);
+    
+    if (visualizationResponse) {
+      setMessageState((state) => ({
+        ...state,
+        messages: [
+          ...state.messages,
+          {
+            type: 'bot',
+            message: visualizationResponse.message,
+            visualization: visualizationResponse.visualization
+          },
+        ]
+      }));
+    } else {
+      // Fallback to sample responses
       const randomResponse = sampleResponses[Math.floor(Math.random() * sampleResponses.length)];
-      
       setMessageState((state) => ({
         ...state,
         messages: [
@@ -109,16 +125,11 @@ function ChatBox() {
             type: 'bot',
             message: randomResponse,
           },
-        ],
-        sourceDocuments: [
-          {
-            page_content: "Sample source content",
-            metadata: { source: "Sample Document" }
-          }
         ]
       }));
-      setLoading(false);
-    }, 1000);
+    }
+    
+    setLoading(false);
   }
 
   //prevent empty submissions
@@ -228,6 +239,9 @@ function ChatBox() {
               <ReactMarkdown remarkPlugins={[gfm]} linkTarget="_blank">
                 {message.message}
               </ReactMarkdown>
+              {message.visualization && (
+                <VisualizationRenderer content={message.visualization} />
+              )}
             </div>
           </div>
         );
