@@ -214,132 +214,66 @@ function ChatBox() {
   }
   
   return (
-    <div className="h-full border border-gray-300 rounded-lg relative grid grid-cols-1 grid-rows-[1fr,auto]">
-    <div className={`m-4 overflow-y-auto`}>
-      {chatMessages.map((message, index) => {
-        if (message.message === "") {
-          return;
-        }
-        let icon;
-        let className;
-        let textName;
-        if (message.type === "bot") {
-          icon = <JettIcon className="h-6 w-6" />;
-          className = "flex items-center gap-2 rounded-md mb-2 bg-gray-50";
-          textName = "text-black";
-        } else {
-          icon = <UserIcon className="h-6 w-6" />;
-          className = "flex items-center gap-2 rounded-md mb-2  bg-gray-50";
-          textName = "text-black";
-        }
-        return (
-          <div key={`chatMessage-${index}`} className={className}>
-            <div className="flex-none mx-2">{icon}</div>
-            <div className={`flex-grow mx-2 px-4 py-2 rounded-md mb-2 ${styles.markdownanswer} ${textName}`}>
-              <ReactMarkdown remarkPlugins={[gfm]} linkTarget="_blank">
-                {message.message}
-              </ReactMarkdown>
-              {message.visualization && (
-                <VisualizationRenderer content={message.visualization} />
-              )}
-            </div>
-          </div>
-        );
-      })}
-      <div ref={messagesEndRef}></div>
-    </div>
-    <div className="flex flex-col justify-end max-h-[300px]">
-      {showSource && sourceDocuments && (
-        <div className="m-4 relative overflow-y-auto flex-grow">
-          <Fragment>
-            {sourceDocuments.map((doc, index) => (
-              <div key={`messageSourceDocs-${index}`}>
-                <Accordion open={open === index}>
-                  <AccordionHeader onClick={() => handleOpen(index)}>
-                    <h3>Source {index + 1}</h3>
-                  </AccordionHeader>
-                  <AccordionBody className="overflow-y-auto max-h-[200px]">
-                    <div linkTarget="_blank">
-                      {doc.page_content}
+    <div className={styles.chatContainer}>
+      <div className={styles.messagesContainer}>
+        {chatMessages.map((message, index) => {
+          if (message.message === "") {
+            return null;
+          }
+          
+          const isBot = message.type === "bot";
+          const icon = isBot ? <JettIcon className={styles.avatar} /> : <UserIcon className={styles.avatar} />;
+          
+          return (
+            <div key={`chatMessage-${index}`} className={styles.messageWrapper}>
+              <div className="flex items-start">
+                {isBot && icon}
+                <div className={`${styles.message} ${isBot ? styles.botMessage : styles.userMessage}`}>
+                  <ReactMarkdown remarkPlugins={[gfm]} linkTarget="_blank">
+                    {message.message}
+                  </ReactMarkdown>
+                  {message.visualization && (
+                    <div className="mt-3">
+                      <VisualizationRenderer content={message.visualization} />
                     </div>
-                    <p className="mt-2">
-                      <b>Source:</b> {doc.metadata && doc.metadata.source}
-                    </p>
-                  </AccordionBody>
-                </Accordion>
+                  )}
+                </div>
+                {!isBot && icon}
               </div>
-            ))}
-          </Fragment>
-        </div>
-      )}
+            </div>
+          );
+        })}
+        <div ref={messagesEndRef} />
+      </div>
 
-      <div className="p-4">
-        <div className="relative w-full">
-        <MentionsInput
+      <form onSubmit={handleSubmit} className={styles.inputContainer}>
+        <div className={styles.inputWrapper}>
+          <input
+            type="text"
+            placeholder="Type your message..."
             value={query}
             onChange={handleInput}
             onKeyDown={handleEnter}
-            placeholder="Send a message..."
+            className={styles.chatInput}
             disabled={loading}
-            className={loading ? "pr-10" : ""}
-            classNames={{
-              input: 'border-2 rounded-lg h-10 flex items-center py-2',
-            }}
-            style={{
-              control: {
-              },
-              highlighter: {
-                overflow: 'hidden',
-              },
-              input: {
-                margin: 0,
-                border: 0, // remove the individual input field border
-                outline: 'none', // add this line to remove outline on focus
-                paddingLeft: '10px',
-                paddingTop: '8px',
-                fontSize: '12px'
-              },
-              suggestions: {
-                list: {
-                  position: 'absolute',
-                  bottom: '100%', // positions the dropdown above the input
-                  backgroundColor: 'white',
-                  border: '1px solid rgba(0,0,0,0.15)',
-                  fontSize: '12px'
-                },
-                item: {
-                  padding: '5px 15px',
-                  borderBottom: '1px solid rgba(0,0,0,0.15)',
-                  '&focused': {
-                    backgroundColor: '#cee4e5',
-                  },
-                },
-              },
-            }}
-          >
-          <Mention
-            trigger="~"
-            data={autocompleteResults}
-            onAdd={handleSelect}
-            appendSpaceOnAdd={true}
           />
-        </MentionsInput>
-
-        {loading ? (
-          <div className="absolute top-1/2 right-2 transform -translate-y-1/2">
-            <EllipsisHorizontalIcon className="h-5 w-5 text-gray-500 animate-ellipsis bold-loader" />
-          </div>
-        ) : (
-          <div className="absolute top-1/2 right-2 transform -translate-y-1/2">
-            <PaperAirplaneIcon className="h-4 w-4 text-gray-500 bold-loader" />
-          </div>
-        )}
+          <button
+            type="submit"
+            disabled={!query.trim() || loading}
+            className={styles.sendButton}
+          >
+            {loading ? (
+              <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            ) : (
+              <PaperAirplaneIcon className="h-5 w-5" />
+            )}
+          </button>
         </div>
-      </div>
+      </form>
     </div>
-  </div>
-  
-
   );
 }
 

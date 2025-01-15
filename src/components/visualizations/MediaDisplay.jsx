@@ -4,28 +4,27 @@ import { ChevronLeft, ChevronRight, Close, ZoomIn } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Memoized image component to prevent unnecessary re-renders
-const ImageCard = memo(({ image, index, onClick }) => (
+const ImageCard = memo(({ image, index, onClick, onDownload, downloading }) => (
   <motion.div
     key={image.url}
     initial={{ opacity: 0, scale: 0.9 }}
     animate={{ opacity: 1, scale: 1 }}
     transition={{ 
-      delay: Math.min(index * 0.1, 0.3), // Cap the delay at 0.3s
+      delay: Math.min(index * 0.1, 0.3),
       duration: 0.2
     }}
     whileHover={{ 
       scale: 1.03,
       transition: { duration: 0.2 }
     }}
-    onClick={() => onClick(index)}
     style={{ cursor: 'pointer' }}
   >
     <Box sx={{ 
       position: 'relative',
       borderRadius: 2,
       overflow: 'hidden',
-      aspectRatio: '4/3',
-      boxShadow: 2,
+      aspectRatio: '16/9',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
       '&:hover .overlay': {
         opacity: 1
       }
@@ -58,7 +57,34 @@ const ImageCard = memo(({ image, index, onClick }) => (
           p: 2
         }}
       >
-        <ZoomIn sx={{ color: 'white', mb: 1 }} />
+        <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+          <IconButton
+            onClick={(e) => onDownload(e)}
+            disabled={downloading}
+            sx={{ 
+              color: 'white',
+              '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' }
+            }}
+          >
+            {downloading ? (
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              >
+                ⭕
+              </motion.div>
+            ) : '⬇️'}
+          </IconButton>
+          <IconButton
+            onClick={() => onClick(index)}
+            sx={{ 
+              color: 'white',
+              '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' }
+            }}
+          >
+            <ZoomIn />
+          </IconButton>
+        </Box>
         <Typography 
           variant="body2" 
           sx={{ 
@@ -77,6 +103,7 @@ const ImageCard = memo(({ image, index, onClick }) => (
 const MediaDisplay = ({ images, title }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [downloading, setDownloading] = useState(false);
 
   const handlePrevious = useCallback((e) => {
     e?.stopPropagation();
@@ -108,6 +135,27 @@ const MediaDisplay = ({ images, title }) => {
 
   const handleClose = useCallback(() => setSelectedImage(null), []);
 
+  const handleDownload = async (image, e) => {
+    e.stopPropagation();
+    try {
+      setDownloading(true);
+      const response = await fetch(image.url);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = image.alt || 'image';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Download failed:', error);
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   return (
     <Box sx={{ width: '100%' }}>
       {title && (
@@ -116,7 +164,10 @@ const MediaDisplay = ({ images, title }) => {
           sx={{ 
             mb: 2,
             fontWeight: 600,
-            color: 'text.primary'
+            color: 'text.primary',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
           }}
         >
           {title}
@@ -124,20 +175,46 @@ const MediaDisplay = ({ images, title }) => {
       )}
       
       <Box sx={{ 
-        display: 'grid', 
-        gridTemplateColumns: {
-          xs: '1fr',
-          sm: 'repeat(auto-fill, minmax(250px, 1fr))'
+        display: 'flex',
+        overflowX: 'auto',
+        gap: 2,
+        pb: 2,
+        scrollBehavior: 'smooth',
+        '&::-webkit-scrollbar': {
+          height: '8px',
         },
-        gap: 2
+        '&::-webkit-scrollbar-track': {
+          background: '#f1f1f1',
+          borderRadius: '4px',
+        },
+        '&::-webkit-scrollbar-thumb': {
+          background: '#888',
+          borderRadius: '4px',
+          '&:hover': {
+            background: '#555',
+          },
+        },
       }}>
         {images.map((image, index) => (
-          <ImageCard
+          <Box
             key={image.url}
-            image={image}
-            index={index}
-            onClick={handleImageClick}
-          />
+            sx={{
+              flex: '0 0 auto',
+              width: {
+                xs: '280px',
+                sm: '320px',
+                md: '360px'
+              }
+            }}
+          >
+            <ImageCard
+              image={image}
+              index={index}
+              onClick={handleImageClick}
+              onDownload={(e) => handleDownload(image, e)}
+              downloading={downloading}
+            />
+          </Box>
         ))}
       </Box>
 
@@ -157,7 +234,8 @@ const MediaDisplay = ({ images, title }) => {
             bgcolor: 'rgba(0,0,0,0.9)',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            p: 2
           }}>
             <IconButton
               sx={{ 
@@ -186,9 +264,47 @@ const MediaDisplay = ({ images, title }) => {
                 style={{
                   maxWidth: '100%',
                   maxHeight: 'calc(100vh - 150px)',
-                  objectFit: 'contain'
+                  objectFit: 'contain',
+                  borderRadius: '8px'
                 }}
               />
+
+              <Box sx={{
+                position: 'absolute',
+                bottom: -60,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                display: 'flex',
+                gap: 2,
+                alignItems: 'center'
+              }}>
+                <IconButton
+                  sx={{ 
+                    color: 'white',
+                    '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' }
+                  }}
+                  onClick={(e) => handleDownload(images[currentIndex], e)}
+                  disabled={downloading}
+                >
+                  <Box component="span" sx={{ 
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1
+                  }}>
+                    {downloading ? (
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      >
+                        ⭕
+                      </motion.div>
+                    ) : '⬇️'}
+                    <Typography variant="body2" sx={{ color: 'white' }}>
+                      {downloading ? 'Downloading...' : 'Download'}
+                    </Typography>
+                  </Box>
+                </IconButton>
+              </Box>
 
               <IconButton
                 sx={{ 
