@@ -125,7 +125,7 @@ const VisualizationRenderer = ({ content }) => {
     
     return (
       <>
-        <Box sx={{ position: 'absolute', top: 8, right: 8, display: 'flex', gap: 1 }}>
+        <Box sx={{ position: 'absolute', top: 8, right: 8, display: 'flex', gap: 1, zIndex: 50 }}>
           <Tooltip title="Export">
             <IconButton 
               size="small" 
@@ -307,4 +307,4 @@ const content = {
     { url: 'image2.jpg', alt: 'Description 2' }
   ]
 };
-*/ 
+*/

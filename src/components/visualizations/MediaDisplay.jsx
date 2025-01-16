@@ -201,6 +201,8 @@ const MediaDisplay = ({ images, title }) => {
     }
   };
 
+  const maxVisibleImages = 3; // Limit to 3 images
+
   return (
     <Box sx={{ width: '100%' }}>
       {title && (
@@ -237,7 +239,7 @@ const MediaDisplay = ({ images, title }) => {
             display: 'none'
           }
         }}>
-          {images.map((image, index) => (
+          {images.slice(currentIndex, currentIndex + maxVisibleImages).map((image, index) => ( // Adjusted to show images based on currentIndex
             <Box
               key={image.url}
               sx={{
@@ -261,49 +263,53 @@ const MediaDisplay = ({ images, title }) => {
         </Box>
 
         {/* Navigation Arrows */}
-        <IconButton
-          className="carousel-nav"
-          sx={{ 
-            position: 'absolute',
-            left: 0,
-            top: '50%',
-            transform: 'translateY(-50%)',
-            color: 'white',
-            bgcolor: 'rgba(0,0,0,0.5)',
-            backdropFilter: 'blur(4px)',
-            opacity: 0,
-            transition: 'all 0.2s ease',
-            '&:hover': { 
-              bgcolor: 'rgba(0,0,0,0.7)',
-              transform: 'translateY(-50%) scale(1.1)'
-            }
-          }}
-          onClick={handlePrevious}
-        >
-          <ChevronLeft />
-        </IconButton>
-        
-        <IconButton
-          className="carousel-nav"
-          sx={{ 
-            position: 'absolute',
-            right: 0,
-            top: '50%',
-            transform: 'translateY(-50%)',
-            color: 'white',
-            bgcolor: 'rgba(0,0,0,0.5)',
-            backdropFilter: 'blur(4px)',
-            opacity: 0,
-            transition: 'all 0.2s ease',
-            '&:hover': { 
-              bgcolor: 'rgba(0,0,0,0.7)',
-              transform: 'translateY(-50%) scale(1.1)'
-            }
-          }}
-          onClick={handleNext}
-        >
-          <ChevronRight />
-        </IconButton>
+        {images.length > maxVisibleImages && ( // Show arrows only if there are more than 3 images
+          <>
+            <IconButton
+              className="carousel-nav"
+              sx={{ 
+                position: 'absolute',
+                left: 0,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: 'white',
+                bgcolor: 'rgba(0,0,0,0.5)',
+                backdropFilter: 'blur(4px)',
+                opacity: 1, // Always visible
+                transition: 'all 0.2s ease',
+                '&:hover': { 
+                  bgcolor: 'rgba(0,0,0,0.7)',
+                  transform: 'translateY(-50%) scale(1.1)'
+                }
+              }}
+              onClick={handlePrevious}
+            >
+              <ChevronLeft />
+            </IconButton>
+            
+            <IconButton
+              className="carousel-nav"
+              sx={{ 
+                position: 'absolute',
+                right: 0,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: 'white',
+                bgcolor: 'rgba(0,0,0,0.5)',
+                backdropFilter: 'blur(4px)',
+                opacity: 1, // Always visible
+                transition: 'all 0.2s ease',
+                '&:hover': { 
+                  bgcolor: 'rgba(0,0,0,0.7)',
+                  transform: 'translateY(-50%) scale(1.1)'
+                }
+              }}
+              onClick={handleNext}
+            >
+              <ChevronRight />
+            </IconButton>
+          </>
+        )}
 
         {/* Pagination Dots */}
         <PaginationDots 

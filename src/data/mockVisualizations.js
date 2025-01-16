@@ -89,6 +89,11 @@ export const mockVisualizations = {
         url: 'https://picsum.photos/400/300?random=3', 
         alt: 'Customer Workshop',
         caption: 'Customer engagement workshop in London'
+      },
+      { 
+        url: 'https://picsum.photos/400/300?random=5', 
+        alt: 'Customer ',
+        caption: ' workshop in india'
       }
     ],
     title: 'Recent Company Events'
