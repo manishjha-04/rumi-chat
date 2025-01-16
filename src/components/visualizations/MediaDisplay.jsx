@@ -239,27 +239,31 @@ const MediaDisplay = ({ images, title }) => {
             display: 'none'
           }
         }}>
-          {images.slice(currentIndex, currentIndex + maxVisibleImages).map((image, index) => ( // Adjusted to show images based on currentIndex
-            <Box
-              key={image.url}
-              sx={{
-                flex: '0 0 auto',
-                width: {
-                  xs: '280px',
-                  sm: '320px',
-                  md: '360px'
-                }
-              }}
-            >
-              <ImageCard
-                image={image}
-                index={index}
-                onClick={handleImageClick}
-                onDownload={(e) => handleDownload(image, e)}
-                downloading={downloading}
-              />
-            </Box>
-          ))}
+        {Array.from({ length: maxVisibleImages }, (_, i) => {
+  const index = (currentIndex + i) % images.length;
+  return (
+    <Box
+      key={images[index].url}
+      sx={{
+        flex: '0 0 auto',
+        width: {
+          xs: '280px',
+          sm: '320px',
+          md: '360px'
+        }
+      }}
+    >
+      <ImageCard
+        image={images[index]}
+        index={index}
+        onClick={handleImageClick}
+        onDownload={(e) => handleDownload(images[index], e)}
+        downloading={downloading}
+      />
+    </Box>
+  );
+})}
+
         </Box>
 
         {/* Navigation Arrows */}
