@@ -281,7 +281,9 @@ export function Chat() {
   return (
     <>
       <div className="h-12 w-full"></div>
-      <div className="h-[calc(60vh-48px)] sm:h-[calc(50vh-48px)] md:h-[calc(70vh-48px)] lg:h-[calc(90vh-48px)] xl:h-[calc(95vh-48px)] flex flex-col">
+      
+    <div className="relative mt-2 h-[calc(100vh-8rem)] w-full">
+      {/* <div className="h-[calc(60vh-48px)] sm:h-[calc(50vh-48px)] md:h-[calc(70vh-48px)] lg:h-[calc(90vh-48px)] xl:h-[calc(95vh-48px)] flex flex-col"> */}
         <Card className="flex flex-col h-full w-full">
           <CardBody className="flex-1 flex flex-col overflow-y-auto">
             <Typography variant="h6" color="blue-gray" className="mb-3">
