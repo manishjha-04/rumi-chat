@@ -267,7 +267,7 @@ const MediaDisplay = ({ images, title }) => {
         </Box>
 
         {/* Navigation Arrows */}
-        {images.length > maxVisibleImages && ( // Show arrows only if there are more than 3 images
+        {images.length > maxVisibleImages && ( 
           <>
             <IconButton
               className="carousel-nav"
